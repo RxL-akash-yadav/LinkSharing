@@ -55,7 +55,6 @@ class TopicController {
         }
     }
 
-
     def send() {
         if (!request.xhr) {
             render([success: false, error: 'Only AJAX requests are supported'] as JSON)
@@ -102,8 +101,6 @@ class TopicController {
         return email ==~ pattern
     }
 
-
-
     def updateVisibility() {
         def topicId = params.id
         def visibility = params.visibility
@@ -131,7 +128,6 @@ class TopicController {
         }
     }
 
-    @Transactional
     def edit() {
         if (!request.xhr) {
             response.status = 400
@@ -175,7 +171,6 @@ class TopicController {
         }
     }
 
-    @Transactional
     def delete() {
         if (!request.xhr) {
             response.status = 400

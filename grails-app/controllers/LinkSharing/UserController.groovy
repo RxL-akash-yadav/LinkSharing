@@ -190,8 +190,6 @@ class UserController {
 
     }
 
-
-
     def editprofile() {
 
         AppUser user = session.user
@@ -252,8 +250,6 @@ class UserController {
         }
     }
 
-
-
     def editTopic() {
         AppUser user = session.user
         def search = params.search?.trim()
@@ -267,7 +263,6 @@ class UserController {
 
         render template: '/user/editTopic', model: [topics: topics]
     }
-
 
     def updateProfile() {
         def user = session.user
@@ -302,7 +297,6 @@ class UserController {
 
         redirect(controller: 'user', action: 'editprofile')
     }
-
 
     def dashboard(String q){
         if (!session.user) {
@@ -345,7 +339,6 @@ class UserController {
         render template: '/user/subscription', model: [subscriptions: subscriptions]
     }
 
-
     def refreshInbox() {
         AppUser user = session.user
         String search = params.search ?: ""
@@ -378,7 +371,6 @@ class UserController {
         ]
     }
 
-
     def refreshTopics() {
         AppUser user = session.user
         if (!user) {
@@ -389,7 +381,6 @@ class UserController {
         def trendingTopics = topicService.getTrendingTopics()
         render(template: '/user/refreshTopics', model: [trendingTopics: trendingTopics])
     }
-
 
     def search(String q){
         if(!session.user){
@@ -501,7 +492,6 @@ class UserController {
             }
         }
     }
-
 
     def photo() {
         Long userId = params.long("id")

@@ -367,8 +367,6 @@ class ResourceController {
         redirect(controller: "user", action: "dashboard")
     }
 
-
-    @Transactional
     def markAsRead() {
         Long id
         
