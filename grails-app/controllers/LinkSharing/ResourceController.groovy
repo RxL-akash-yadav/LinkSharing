@@ -248,17 +248,14 @@ class ResourceController {
             }
             
             if (request.xhr) {
-                // For AJAX requests, ensure we're sending a complete response
                 def responseData = [
                     success: true,
                     downloadUrl: createLink(action: 'downloadFile', id: id, absolute: true)
                 ]
-                
-                // Ensure fileName is not null before adding to response
+
                 if (resource.fileName) {
                     responseData.fileName = resource.fileName
                 } else {
-                    // Provide a default name if fileName is null
                     responseData.fileName = "document-${id}.bin"
                 }
                 
@@ -290,8 +287,7 @@ class ResourceController {
             }
         }
     }
-    
-    // New method for actual file downloading (used by AJAX)
+
     def downloadFile(Long id) {
         DocumentResource resource = DocumentResource.get(id)
         
@@ -302,18 +298,15 @@ class ResourceController {
         }
         
         try {
-            // Stream BLOB data to response
             if (resource.fileContent == null || resource.fileContent.length == 0) {
                 log.error("File content is empty for document: ${resource.id}")
                 flash.error = "File content is empty"
                 redirect(action: 'post', id: id)
                 return
             }
-            
-            // Stream file to response
+
             response.setContentType(determineContentType(resource.fileName ?: "application/octet-stream"))
-            
-            // Ensure fileName is not null for Content-disposition header
+
             String safeFileName = resource.fileName ?: "document-${id}.bin"
             response.setHeader("Content-disposition", "attachment;filename=\"${safeFileName}\"")
             
@@ -330,8 +323,7 @@ class ResourceController {
             redirect(action: 'post', id: id)
         }
     }
-    
-    // Helper method to determine content type based on file extension
+
     private String determineContentType(String fileName) {
         String extension = fileName.lastIndexOf('.') > 0 ? 
                            fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase() : ""
@@ -378,7 +370,6 @@ class ResourceController {
 
     @Transactional
     def markAsRead() {
-        // Fix: Handle both JSON and regular parameters
         Long id
         
         if (request.JSON) {
@@ -412,7 +403,6 @@ class ResourceController {
         try {
             ReadingItem readingItem = ReadingItem.findByUserAndResource(currentUser, resource)
             if (!readingItem) {
-                // Create reading item if it doesn't exist
                 readingItem = new ReadingItem(
                     user: currentUser,
                     resource: resource,
@@ -533,7 +523,6 @@ class ResourceController {
             rating.score = score
 
             if (rating.save(flush: true)) {
-                // Calculate ratings using explicit query to ensure accuracy
                 def ratings = ResourceRating.findAllByResource(resource)
                 def totalRatings = ratings.size()
                 def averageRating = totalRatings ? (ratings*.score.sum() / totalRatings).round(2) : 0
