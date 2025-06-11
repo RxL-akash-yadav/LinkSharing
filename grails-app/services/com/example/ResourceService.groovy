@@ -11,10 +11,16 @@ class ResourceService {
 
     def grailsApplication
 
-    String getDocumentStoragePath() {
-        return grailsApplication.config.uploadFolder ?: "/tmp/uploads"
-    }
-
+    /**
+     * Creates a new link resource and associates it with the specified topic.
+     * Also creates reading items for all users subscribed to the topic.
+     *
+     * @param url The URL of the link resource
+     * @param description A description of the resource
+     * @param topicId The ID of the topic to associate with
+     * @return The created LinkResource object
+     * @throws ValidationException if the topic ID is invalid or if saving fails
+     */
     LinkResource createResourceLink(String url, String description, Long topicId) {
         Topic topic = Topic.get(topicId)
         if (!topic) {
@@ -48,6 +54,17 @@ class ResourceService {
     }
 
 
+    /**
+     * Creates a new document resource and associates it with the specified topic.
+     * The file content is stored directly in the database as a BLOB.
+     * Also creates reading items for all users subscribed to the topic.
+     *
+     * @param file The uploaded file (MultipartFile)
+     * @param description A description of the resource
+     * @param topicId The ID of the topic to associate with
+     * @return The created DocumentResource object
+     * @throws ValidationException if the topic ID is invalid or if saving fails
+     */
     DocumentResource createResourceDocument(MultipartFile file, String description, Long topicId) {
         Topic topic = Topic.get(topicId)
         if (!topic) {

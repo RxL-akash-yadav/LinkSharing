@@ -41,7 +41,7 @@ class UserController {
             return
         }
 
-        def user = userService.findUserById(id)
+        def user = AppUser.findById(id)
         if (!user) {
             flash.message = "User not found."
             redirect(controller: 'home', action: 'index')

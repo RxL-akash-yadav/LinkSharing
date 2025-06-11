@@ -14,8 +14,10 @@ class UserService {
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder()
 
-
-    def registerUser(Map userParams) {
+    /**
+     * Parameters for user registration.
+     */
+    def registerUser(MultipartHttpServletRequest request) {
 
         if (AppUser.findByUsername(userParams.username)) {
             return [
@@ -38,9 +40,13 @@ class UserService {
         user.email = userParams.email.trim().toLowerCase()
         user.firstName = userParams.firstName.trim()
         user.lastName = userParams.lastName.trim()
-        user.password = encryptPassword(userParams.password)
+        user.password = encryptPassword((String)userParams.password)
         user.admin = false
         user.active=true
+        def photoFile = request.getFile("photo")
+        if (photoFile && !photoFile.empty) {
+            user.photo = photoFile.bytes
+        }
 
         if (user.save(flush: true)) {
             log.info("User registered successfully: ${user.username}")
@@ -58,23 +64,35 @@ class UserService {
         }
     }
 
-
-    def findUserById(Long id){
-        return AppUser.get(id)
-    }
-
+    /**
+     * Validates the raw password against the encoded password.
+     *
+     * @param rawPassword The raw password to validate
+     * @param encodedPassword The encoded password to compare against
+     * @return true if the passwords match, false otherwise
+     */
     def validatePassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword)
     }
 
+    /**
+     * Encrypts the given password using BCrypt.
+     *
+     * @param password The raw password to encrypt
+     * @return The encrypted password
+     */
     def encryptPassword(String password) {
         return passwordEncoder.encode(password)
     }
 
-    def findUserByUsername(String username) {
-        return AppUser.findByUsername(username)
-    }
-
+    /**
+     * Updates the user profile with the provided parameters.
+     *
+     * @param user The AppUser object to update
+     * @param params The parameters containing updated user information
+     * @param request The MultipartHttpServletRequest for file uploads
+     * @return true if the update was successful, false otherwise
+     */
     def updateProfile(AppUser user, Map params, MultipartHttpServletRequest request) {
         if (!user) return false
 
@@ -92,6 +110,13 @@ class UserService {
         return user.save(flush: true)
     }
 
+    /**
+     * Changes the password for the given user.
+     *
+     * @param user The AppUser whose password is to be changed
+     * @param params The parameters containing the new password and confirmation
+     * @return true if the password was changed successfully, false otherwise
+     */
     def changePassword(AppUser user, Map params) {
         if (!user) return false
 

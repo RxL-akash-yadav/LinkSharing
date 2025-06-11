@@ -3,6 +3,7 @@ package LinkSharing
 import com.example.AppUser
 import com.example.Subscription
 import com.example.InvitationService
+import com.example.SubscriptionService
 import com.example.Topic
 import com.example.TopicService
 import grails.converters.JSON
@@ -15,6 +16,7 @@ class TopicController {
 
     TopicService topicService
     InvitationService invitationService
+    SubscriptionService subscriptionService
 
 
 
@@ -41,6 +43,8 @@ class TopicController {
                 seriousness: "VERY_SERIOUS"
             )
             subscription.save(flush: true)
+
+            subscriptionService.subscribeUser(currentUser, topic, "VERY_SERIOUS")
             
             render([
                 success: true,
