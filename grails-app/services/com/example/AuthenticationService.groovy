@@ -19,12 +19,20 @@ class AuthenticationService {
     UserService userService
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder()
 
+    /**
+     * Authenticates a user with the given username and password.
+     * If password is null, performs auto-login using the username.
+     *
+     * @param username The username of the user
+     * @param password The password of the user (optional)
+     * @return A map containing success status, message, and user information
+     */
     def authenticateUser(String username, String password = null) {
         if (password == null) {
             return performAutoLogin(username)
         }
 
-        AppUser user = userService.findUserByUsername(username)
+        AppUser user = AppUser.findByUsername(username)
 
         if (!user) {
             return [
@@ -60,6 +68,13 @@ class AuthenticationService {
         ]
     }
 
+    /**
+     * Performs auto-login for the user with the given username.
+     * This method is used when the user is already authenticated and needs to be logged in again.
+     *
+     * @param username The username of the user to auto-login
+     * @return A map containing success status, message, and user information
+     */
     def performAutoLogin(String username) {
         try {
             AppUser user = userService.findUserByUsername(username)
@@ -90,7 +105,12 @@ class AuthenticationService {
         }
     }
 
-
+    /**
+     * Logs out the current user and invalidates the session.
+     * Clears the security context to remove authentication information.
+     *
+     * @return A map containing success status and message
+     */
     def logoutUser() {
         try {
             def requestAttributes = RequestContextHolder.getRequestAttributes()
@@ -128,9 +148,12 @@ class AuthenticationService {
         }
     }
 
-
-
-
+    /**
+     * Performs the login operation by setting the security context with the user's authentication details.
+     * This method is called after successful user authentication.
+     *
+     * @param user The AppUser object representing the authenticated user
+     */
     private def performLogin(AppUser user) {
         def authorities = []
 
@@ -155,6 +178,13 @@ class AuthenticationService {
         }
     }
 
+    /**
+     * Generates a password reset token for the given user.
+     * The token is valid for 24 hours.
+     *
+     * @param user The AppUser for whom the token is generated
+     * @return A map containing success status, token, and user information
+     */
     def generatePasswordResetToken(AppUser user) {
         if (!user) {
             return [
@@ -186,6 +216,13 @@ class AuthenticationService {
         }
     }
 
+    /**
+     * Validates the password reset token.
+     * If valid, returns the user associated with the token.
+     *
+     * @param token The password reset token
+     * @return A map containing success status, user information, or error messages
+     */
     def validateResetToken(String token) {
         if (!token) {
             return [
@@ -206,7 +243,6 @@ class AuthenticationService {
         }
 
         if (!user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
-            // Clear expired token
             user.resetToken = null
             user.resetTokenExpiry = null
             user.save(flush: true)
@@ -224,6 +260,14 @@ class AuthenticationService {
         ]
     }
 
+    /**
+     * Resets the password for the user associated with the given token.
+     * The token must be valid and not expired.
+     *
+     * @param token The password reset token
+     * @param newPassword The new password to set
+     * @return A map containing success status, message, or error messages
+     */
     def resetPassword(String token, String newPassword) {
         def validationResult = validateResetToken(token)
 

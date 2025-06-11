@@ -67,7 +67,7 @@ class AdminController {
 
 
     def deactivate() {
-        def user = AppUser.get(params.userId)
+        def user = AppUser.get((Long)params.userId)
         if (user) {
             user.active = false
             user.save(flush: true)
@@ -77,7 +77,7 @@ class AdminController {
     }
 
     def activate() {
-        def user = AppUser.get(params.userId)
+        def user = AppUser.get((Long)params.userId)
         if (user) {
             user.active = true
             user.save(flush: true)

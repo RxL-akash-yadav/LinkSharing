@@ -3,10 +3,10 @@ package LinkSharing
 import com.example.AppUser
 import com.example.Subscription
 import com.example.InvitationService
+import com.example.SubscriptionService
 import com.example.Topic
 import com.example.TopicService
 import grails.converters.JSON
-import grails.validation.ValidationException
 import org.springframework.security.access.annotation.Secured
 import grails.gorm.transactions.Transactional
 
@@ -16,6 +16,8 @@ class TopicController {
 
     TopicService topicService
     InvitationService invitationService
+    SubscriptionService subscriptionService
+
 
 
     def create(){
@@ -41,6 +43,8 @@ class TopicController {
                 seriousness: "VERY_SERIOUS"
             )
             subscription.save(flush: true)
+
+            subscriptionService.subscribeUser(currentUser, topic, "VERY_SERIOUS")
             
             render([
                 success: true,
@@ -69,6 +73,7 @@ class TopicController {
                 render([success: false, error: "Email and topic are required"] as JSON)
                 return
             }
+
 
             if (!isValidEmail(email)) {
                 render([success: false, error: "Please enter a valid email address"] as JSON)
@@ -134,10 +139,16 @@ class TopicController {
             render([success: false, error: 'Invalid request'] as JSON)
             return
         }
+
         try {
             def json = request.JSON
             Long topicId = json.id as Long
             String name = json.name?.trim()
+            if(Topic.findByName(name)) {
+                response.status = 400
+                render([success: false, error: 'Topic with this name already exists'] as JSON)
+                return
+            }
             String seriousness = json.seriousness
             String visibility = json.visibility
 
@@ -156,7 +167,6 @@ class TopicController {
             topic.visibility = visibility
             topic.save(flush: true)
 
-            // Update seriousness for user's subscription if present
             def sub = topic.subscriptions?.find { it.user?.id == session.user?.id }
             if (sub && seriousness) {
                 sub.seriousness = seriousness

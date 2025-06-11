@@ -16,6 +16,13 @@ class InvitationService {
     @Value('${app.name:Link Sharing}')
     String appName
 
+    /**
+     * Sends an invitation email to a user for a specific topic.
+     *
+     * @param recipientEmail The email address of the recipient.
+     * @param topic The topic to which the user is being invited.
+     * @return A map containing the success status and message.
+     */
     def sendTopicInvitation(String recipientEmail, Topic topic) {
         try {
             String topicLink = generateTopicLink(topic)
@@ -56,6 +63,12 @@ class InvitationService {
         }
     }
 
+    /**
+     * Generates a link to the topic.
+     *
+     * @param topic The topic for which the link is generated.
+     * @return The URL to access the topic.
+     */
     private String generateTopicLink(def topic) {
         return "${baseUrl}/resource/topic/${topic.id}"
     }
