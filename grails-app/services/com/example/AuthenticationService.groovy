@@ -206,7 +206,6 @@ class AuthenticationService {
         }
 
         if (!user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
-            // Clear expired token
             user.resetToken = null
             user.resetTokenExpiry = null
             user.save(flush: true)
