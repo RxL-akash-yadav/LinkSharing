@@ -4,11 +4,11 @@ import com.example.AppResource
 import com.example.ResourceRating
 import com.example.AuthenticationService
 import com.example.ResourceService
+import com.example.Visibility
 import com.example.UserService
 import org.springframework.security.access.annotation.Secured
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Date
 
 
 @Secured(['permitAll'])
@@ -101,11 +101,10 @@ class HomeController {
 
         Date fromDate = Date.from(temp.atZone(ZoneId.systemDefault()).toInstant())
 
-        // Make sure to only get public resources
         return AppResource.createCriteria().list(max: 5) {
             ge('dateCreated', fromDate)
             topic {
-                eq('visibility', com.example.Visibility.PUBLIC)
+                eq('visibility', Visibility.PUBLIC)
             }
         }
     }
@@ -243,7 +242,6 @@ class HomeController {
                 redirect(controller: 'home', action: 'index')
                 return
             }
-
             render(view: 'resetPassword', model: [token: token])
         }
     }
